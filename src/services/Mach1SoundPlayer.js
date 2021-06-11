@@ -1,11 +1,11 @@
+/* eslint-disable new-cap */
+
 /**
  * Mach1 Spatial Web SoundPlayer Example
  * Description: Example of an audio player for Mach1Decode API and spatial audio playback
 */
 
-/* eslint-disable new-cap, no-alert */
-
-class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
+export default class Mach1SoundPlayer {
   #soundFilesCount = 0
   #soundFilesCountReady = 0
 
