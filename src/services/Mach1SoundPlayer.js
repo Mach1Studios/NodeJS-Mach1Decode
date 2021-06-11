@@ -177,7 +177,7 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
     return this.#gains;
   }
 
- /**
+  /**
    * Setting Master Gain/Volume
    * @param  {Array} volume
    */
@@ -203,7 +203,7 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
           this.#smp[i] = this.audioContext.createBufferSource();
           if (this.#isFromBuffer) {
             this.#smp[i].buffer = this.audioContext.createBuffer(
-              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate
+              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate,
             );
             this.#smp[i].buffer.copyToChannel(this.#buffer.getChannelData(j), 0, 0);
           } else {
@@ -228,7 +228,7 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
           this.#smp[i + 1] = this.audioContext.createBufferSource();
           if (this.#isFromBuffer) {
             this.#smp[i + 1].buffer = this.audioContext.createBuffer(
-              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate
+              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate,
             );
             this.#smp[i + 1].buffer.copyToChannel(this.#buffer.getChannelData(j), 0, 0);
           } else {
