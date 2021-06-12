@@ -1,11 +1,11 @@
 /**
- * Default browser sync configuration file
+ * Default browser sync configuration object
  *
  * In the future should be a move to the build tools like gulp, grant. Can be removed if want to use webpack-dev-server (or how it calling now?)
  * @see {@link https://www.browsersync.io/docs/options}
  * @type {Object}
  */
-module.exports = {
+export const configs = {
   ui: {
     port: 3001,
   },
@@ -26,8 +26,8 @@ module.exports = {
     },
   },
   proxy: false,
-  port: 3000,
-  middleware: false,
+  port: 3002,
+  middleware: [],
   serveStatic: [],
   ghostMode: {
     clicks: true,
@@ -104,3 +104,5 @@ module.exports = {
   },
   injectNotification: false,
 };
+
+export { default as bundler } from './bundler';

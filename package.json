@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src",
     "example": "./node_modules/browser-sync/dist/bin.js start --config 'bs-config.js'",
+    "start": "node -r esm ./configs/browser-sync.js",
     "test": "npm run lint"
   },
   "repository": {
@@ -32,7 +33,8 @@
     "browser-sync": "^2.26.14",
     "eslint": "^7.28.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.23.4"
+    "eslint-plugin-import": "^2.23.4",
+    "esm": "^3.2.25"
   },
   "dependencies": {
     "@david18284/one-euro-filter": "^1.0.2",
