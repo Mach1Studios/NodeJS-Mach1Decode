@@ -19,7 +19,12 @@ module.exports = {
   watchOptions: {
     ignoreInitial: true,
   },
-  server: false,
+  server: {
+    baseDir: 'examples',
+    serveStaticOptions: {
+      extensions: ['html'],
+    },
+  },
   proxy: false,
   port: 3000,
   middleware: false,
