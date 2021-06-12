@@ -35,7 +35,9 @@
   "dependencies": {
     "@david18284/one-euro-filter": "^1.0.2",
     "@tensorflow/tfjs": "^3.7.0",
+    "@tensorflow/tfjs-backend-wasm": "^3.7.0",
     "osc-js": "^2.1.2",
+    "stats.js": "^0.17.0",
     "three": "^0.129.0"
   }
 }

@@ -1,11 +1,19 @@
 import * as tf from '@tensorflow/tfjs';
+
+// FIXME: that is async module and need to wait when it full loaded
+// FIXME: like that tf.setBackend('wasm').then(() => callback());
+import '@tensorflow/tfjs-backend-wasm';
+
 import * as THREE from 'three';
 import OSC from 'osc-js';
+import Stats from 'stats.js';
+
 import { OneEuroFilter } from '@david18284/one-euro-filter';
 
-import Mach1SoundPlayer from '../src/services/Mach1SoundPlayer';
-import Mach1DecodeModule from '../lib/Mach1Decode';
+
 import Gimbal from '../src/services/Gimbal';
+import Mach1DecodeModule from '../lib/Mach1Decode';
+import Mach1SoundPlayer from '../src/services/Mach1SoundPlayer';
 
 window.modeTracker = '';
 const videoOutput = document.getElementById('output');
@@ -173,20 +181,21 @@ document.addEventListener('DOMContentLoaded', () => {
   enableBoseAR();
 });
 
-function setupDatGui() {
-  const gui = new dat.GUI();
-  // gui.add(controls, "nPoint", 300, 468); //468);
-  gui.add(controls, 'yawMultiplier', 0.0, 5.0);
-  gui.add(controls, 'pitchMultiplier', 0.0, 5.0);
-  gui.add(controls, 'rollMultiplier', 0.0, 5.0);
-  gui.add(controls, 'FOV', 30.0, 90.0);
-  gui.add(controls, 'filterSpeed', 0.1, 1.0);
-
-  gui.add(controls, 'oneEuroFilterBeta', 0.05, 0.1).onChange(() => {
-    window.createOneEuroFilters();
-  });
-  gui.close();
-}
+// NOTE: dat.GUI can be removed for setting can be used any storage state
+// function setupDatGui() {
+//   const gui = new dat.GUI();
+//   // gui.add(controls, "nPoint", 300, 468); //468);
+//   gui.add(controls, 'yawMultiplier', 0.0, 5.0);
+//   gui.add(controls, 'pitchMultiplier', 0.0, 5.0);
+//   gui.add(controls, 'rollMultiplier', 0.0, 5.0);
+//   gui.add(controls, 'FOV', 30.0, 90.0);
+//   gui.add(controls, 'filterSpeed', 0.1, 1.0);
+//
+//   gui.add(controls, 'oneEuroFilterBeta', 0.05, 0.1).onChange(() => {
+//     window.createOneEuroFilters();
+//   });
+//   gui.close();
+// }
 
 // TODO: Apply isMobile returned bools to Device modes
 function isMobile() {
@@ -195,7 +204,12 @@ function isMobile() {
   return isAndroid || isiOS;
 }
 
-let model; let ctx; let videoWidth; let videoHeight; let video; let canvas;
+let canvas;
+let ctx;
+// let model;
+let video;
+let videoHeight;
+let videoWidth;
 
 const mobile = isMobile();
 
@@ -241,7 +255,8 @@ async function setupCamera() {
 }
 
 async function renderPrediction() {
-  const predictions = await model.estimateFaces(video);
+  const predictions = [];
+  // const predictions = await model.estimateFaces(video);
   const warningMessage = 'WARNING: UNABLE TO TRACK FACE!';
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
 
@@ -332,6 +347,7 @@ async function renderPrediction() {
   requestAnimationFrame(renderPrediction);
 }
 
+// eslint-disable-next-line
 async function trackerMain() {
   const info = document.getElementById('info');
   const element = `
@@ -394,7 +410,8 @@ async function trackerMain() {
   ctx.fillStyle = '#32EEDB';
   ctx.strokeStyle = '#32EEDB';
 
-  model = await facemesh.load({ maxFaces: 1 });
+  // FIXME: facemesh was deprecated :(
+  // model = await facemesh.load({ maxFaces: 1 });
   await renderPrediction();
 
   // wait for loaded audio
@@ -406,7 +423,7 @@ async function trackerMain() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  setupDatGui();
+  // setupDatGui();
   trackerMain();
 });
 
@@ -436,7 +453,7 @@ function Decode(yaw, pitch, roll) {
 // ------------------------
 // OSC Handling
 osc.open({
-  port: 9898
+  port: 9898,
 });
 
 // ------------------------
@@ -583,8 +600,12 @@ function animate() {
 
     const rotateX = `rotateX(${parseInt(-window.pitch, 10)}deg)`;
     const rotateY = `rotateY(${parseInt(-window.yaw, 10)}deg)`;
+
+    // eslint-disable-next-line
     const transform = `translate(-50%, -50%) ${rotateX} ${rotateY}`;
-    $('.card').css({ transform });
+
+    // FIXME: jQ should be removed
+    // $('.card').css({ transform });
   }
   if (window.modeTracker === 'device') {
     document.getElementById('compass').style.display = '';
@@ -663,7 +684,7 @@ function animate() {
   } else if (osc.status() === OSC.STATUS.IS_CLOSED) {
     osc.open({
       // TODO: custom port output
-      port: 9898
+      port: 9898,
     });
   }
 }
