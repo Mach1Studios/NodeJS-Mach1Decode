@@ -1,27 +1,62 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-extraneous-dependencies, consistent-return */
 import { URL } from 'url';
 
 import webpack from 'webpack';
 import middleware from 'webpack-dev-middleware';
 
+// console.log(require);
+
 const compiler = (bs, { entry }) => {
   const bundler = webpack({
-    // debug: true,
+    mode: 'development',
     entry,
     output: {
-      path: new URL('.', import.meta.url).pathname,
+      path: new URL('../../dist', import.meta.url).pathname,
       publicPath: '/',
-      filename: 'dist/bundle.js',
+      filename: '[name].bundle.js',
+    },
+    devtool: 'inline-source-map',
+    plugins: [
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NoEmitOnErrorsPlugin(),
+    ],
+    resolve: {
+      fallback: {
+        os: require.resolve('os-browserify/browser'),
+        path: require.resolve('path-browserify'),
+        // path: false,
+        fs: false,
+      },
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+              plugins: ['@babel/plugin-proposal-class-properties'],
+            },
+          },
+        },
+      ],
     },
   });
-  // console.log(bundler.hooks.done);
 
   bundler.hooks.done.tap('bs', (stats) => {
-    console.log(stats);
-    // bs.reload();
+    if (stats.hasErrors()) {
+      return bs.sockets.emit('fullscreen:message', {
+        title: 'Webpack Error:',
+        body: stats.toString(),
+        timeout: 100000,
+      });
+    }
+    bs.reload();
   });
 
   return bundler;
 };
 
-export default (bs, opts) => middleware(compiler(bs, opts), { publicPath: '' });
+export default (bs, opts) => middleware(compiler(bs, opts), { publicPath: '/' });

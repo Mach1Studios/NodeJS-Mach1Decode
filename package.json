@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src",
     "example": "./node_modules/browser-sync/dist/bin.js start --config 'bs-config.js'",
-    "start": "node -r esm ./configs/browser-sync.js",
+    "start": "node --experimental-import-meta-resolve -r esm ./configs/browser-sync.js",
     "test": "npm run lint"
   },
   "repository": {
@@ -30,17 +30,22 @@
   "devDependencies": {
     "@babel/core": "^7.14.5",
     "@babel/eslint-parser": "^7.14.5",
+    "@babel/preset-env": "^7.14.5",
+    "babel-loader": "^8.2.2",
     "browser-sync": "^2.26.14",
     "eslint": "^7.28.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "portscanner": "^2.2.0"
   },
   "dependencies": {
     "@david18284/one-euro-filter": "^1.0.2",
     "@tensorflow/tfjs": "^3.7.0",
     "@tensorflow/tfjs-backend-wasm": "^3.7.0",
+    "os-browserify": "^0.3.0",
     "osc-js": "^2.1.2",
+    "path-browserify": "^1.0.1",
     "stats.js": "^0.17.0",
     "three": "^0.129.0"
   }

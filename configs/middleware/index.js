@@ -26,7 +26,7 @@ export const configs = {
     },
   },
   proxy: false,
-  port: 3002,
+  port: 3000,
   middleware: [],
   serveStatic: [],
   ghostMode: {
@@ -45,7 +45,7 @@ export const configs = {
   logFileChanges: true,
   logSnippet: true,
   rewriteRules: [],
-  open: 'local',
+  open: false,
   browser: 'default',
   cors: false,
   xip: false,
