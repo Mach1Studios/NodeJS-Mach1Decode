@@ -24,7 +24,6 @@ const compiler = (bs, { entry }) => {
       fallback: {
         os: require.resolve('os-browserify/browser'),
         path: require.resolve('path-browserify'),
-        // path: false,
         fs: false,
       },
     },
