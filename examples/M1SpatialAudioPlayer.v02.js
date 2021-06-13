@@ -1,3 +1,6 @@
+import "regenerator-runtime/runtime";
+import "core-js/stable";
+
 import * as tf from '@tensorflow/tfjs';
 
 // FIXME: that is async module and need to wait when it full loaded

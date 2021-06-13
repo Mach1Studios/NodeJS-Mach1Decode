@@ -27,6 +27,7 @@ const compiler = (bs, { entry }) => {
         fs: false,
       },
     },
+    target: ['web', 'es5'],
     module: {
       rules: [
         {
