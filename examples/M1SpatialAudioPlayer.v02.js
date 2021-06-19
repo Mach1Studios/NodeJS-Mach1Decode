@@ -1,5 +1,5 @@
-import "regenerator-runtime/runtime";
-import "core-js/stable";
+import 'regenerator-runtime/runtime';
+import 'core-js/stable';
 
 import * as tf from '@tensorflow/tfjs';
 
@@ -8,6 +8,10 @@ import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-wasm';
 
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 // import OSC from 'osc-js';
 import Stats from 'stats.js';
 
@@ -181,6 +185,8 @@ function enableBoseAR() {
 document.addEventListener('DOMContentLoaded', () => {
   selectTracker();
   enableBoseAR();
+
+  window.selectTracker = selectTracker;
 });
 
 // NOTE: dat.GUI can be removed for setting can be used any storage state
@@ -257,8 +263,7 @@ async function setupCamera() {
 }
 
 async function renderPrediction() {
-  const predictions = [];
-  // const predictions = await model.estimateFaces(video);
+  const predictions = await model.estimateFaces(video);
   const warningMessage = 'WARNING: UNABLE TO TRACK FACE!';
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
 
@@ -353,7 +358,7 @@ async function renderPrediction() {
 async function trackerMain() {
   const info = document.getElementById('info');
   const element = `
-    <img class="svg-loader" src="/img/spinner.svg">
+    <img class="svg-loader" src="https://demo.mach1.tech/img/spinner.svg">
     <p id="progress:debug">loading...</p>
     <p id="progress"></p>
   `;
@@ -482,9 +487,9 @@ let pitch = 0;
 let roll = 0;
 
 window.createOneEuroFilters = function createOneEuroFilters() {
-  fYaw = OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
-  fPitch = OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
-  fRoll = OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
+  fYaw = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
+  fPitch = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
+  fRoll = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
 };
 
 function onWindowResize() {
@@ -547,7 +552,7 @@ function init() {
     normalScale: new THREE.Vector2(0.8, 0.8),
   });
 
-  loader = new THREE.GLTFLoader();
+  loader = new GLTFLoader();
   loader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb', (gltf) => {
     createScene(gltf.scene.children[0].geometry, 100, material);
   });
@@ -561,8 +566,8 @@ function init() {
   // COMPOSER
   renderer.autoClear = false;
 
-  const renderModel = new THREE.RenderPass(scene, camera);
-  composer = new THREE.EffectComposer(renderer);
+  const renderModel = new RenderPass(scene, camera);
+  composer = new EffectComposer(renderer);
   composer.addPass(renderModel);
 
   // EVENTS

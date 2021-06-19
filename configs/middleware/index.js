@@ -21,6 +21,9 @@ export const configs = {
   },
   server: {
     baseDir: 'examples',
+    routes: {
+      '/Mach1Decode.wasm': 'lib/Mach1Decode.wasm',
+    },
     serveStaticOptions: {
       extensions: ['html'],
     },

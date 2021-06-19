@@ -6,7 +6,7 @@
   <meta content="utf-8" http-equiv="encoding" />
 
   <!-- Loading / Progress Bar -->
-  <!-- <link rel="preload" href="img/spinner.svg" as="image"> -->
+  <link rel="preload" href="https://demo.mach1.tech/img/spinner.svg" as="image">
 
   <!--
         Bose AR SDK supplied from https://github.com/zakaton/Bose-Frames-Web-SDK
@@ -14,25 +14,15 @@
   -->
   <!-- <script src="js/bose-ar-web-sdk.min.js"></script> -->
 
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.7.0/dist/tf.min.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@2.7.0/dist/tf-backend-wasm.min.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh@0.0.5/dist/facemesh.min.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script> -->
-  <!-- <script src="js/three.js/libs/stats.min.js"></script>
-  <script src="js/three.js/loaders/GLTFLoader.js"></script>
-  <script src="js/three.js/postprocessing/EffectComposer.js"></script>
-  <script src="js/three.js/postprocessing/RenderPass.js"></script>
+  <!--
   <script src="js/three.js/postprocessing/ShaderPass.js"></script>
   <script src="js/three.js/shaders/CopyShader.js"></script>
 
   <script src="js/osc.min.js"></script>
-  <script src="js/1euro.js"></script>
-  <script src="js/Gimbal.js"></script>
-
-  <script src="js/Mach1SoundPlayer.js"></script>
-  <script src="js/Mach1Decode.js"></script> -->
+  -->
 
   <style type="text/css">
     @font-face {
@@ -488,7 +478,7 @@
       </div>
     </div>
     <div id="touchstats" style="display:none;margin:0;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50vw;height:auto;">
-      <div class="background"><img src="img/touch-compass.svg" style="width:50vw;height:auto;" /></div>
+      <div class="background"><img src="https://demo.mach1.tech/img/touch-compass.svg" style="width:50vw;height:auto;" /></div>
       <div class="cardBottom">
         <div class="card">
           <div class="txt">FRONT</div>
@@ -497,7 +487,7 @@
     </div>
     <div class="container">
       <div id="compassContainer">
-        <img id="compass" src="img/nav-compass.svg" />
+        <img id="compass" src="https://demo.mach1.tech/img/nav-compass.svg" />
       </div>
       <div id="warning"></div>
     </div>
@@ -515,9 +505,7 @@
   <div id="stats" style="position:absolute;bottom:5px;left:5px;"></div>
   <div id="info" style="position:relative; margin:auto; margin-top:41vh; text-align:center; font-size:3em;"></div>
 
-  <!-- <script type="module" src="M1SpatialAudioPlayer.v02.js"></script> -->
-  <script type="module" src="/main.bundle.js"></script>
-
+  <script src="/main.bundle.js"></script>
   <script id="__bs_script__">
     //<![CDATA[
     document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.14'><\/script>".replace("HOST", location.hostname));
