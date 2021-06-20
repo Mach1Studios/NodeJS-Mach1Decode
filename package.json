@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@david18284/one-euro-filter": "^1.0.2",
+    "@tensorflow-models/face-landmarks-detection": "0.0.3",
     "@tensorflow/tfjs": "^3.7.0",
     "@tensorflow/tfjs-backend-wasm": "^3.7.0",
     "core-js": "^3.14.0",

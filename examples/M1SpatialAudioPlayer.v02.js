@@ -2,10 +2,11 @@ import 'regenerator-runtime/runtime';
 import 'core-js/stable';
 
 import * as tf from '@tensorflow/tfjs';
+import * as facemesh from '@tensorflow-models/face-landmarks-detection';
 
 // FIXME: that is async module and need to wait when it full loaded
 // FIXME: like that tf.setBackend('wasm').then(() => callback());
-import '@tensorflow/tfjs-backend-wasm';
+// import '@tensorflow/tfjs-backend-wasm';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -67,8 +68,7 @@ const getAudioFiles = (files) => {
 const Player = new Mach1SoundPlayer(getAudioFiles(audioFiles8));
 const DecodeModule = new Mach1DecodeModule();
 // const osc = new OSC();
-
-tf.setBackend('webgl');
+tf.setBackend('wasm');
 
 function radiansToDegrees(radians) {
   return radians * (180 / Math.PI);
@@ -187,6 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   enableBoseAR();
 
   window.selectTracker = selectTracker;
+  window.Player = Player;
 });
 
 // NOTE: dat.GUI can be removed for setting can be used any storage state
@@ -214,7 +215,7 @@ function isMobile() {
 
 let canvas;
 let ctx;
-// let model;
+let model;
 let video;
 let videoHeight;
 let videoWidth;
@@ -263,7 +264,9 @@ async function setupCamera() {
 }
 
 async function renderPrediction() {
-  const predictions = await model.estimateFaces(video);
+  const predictions = await model.estimateFaces({
+    input: video,
+  });
   const warningMessage = 'WARNING: UNABLE TO TRACK FACE!';
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
 
@@ -417,8 +420,7 @@ async function trackerMain() {
   ctx.fillStyle = '#32EEDB';
   ctx.strokeStyle = '#32EEDB';
 
-  // FIXME: facemesh was deprecated :(
-  // model = await facemesh.load({ maxFaces: 1 });
+  model = await facemesh.load(facemesh.SupportedPackages.mediapipeFacemesh);
   await renderPrediction();
 
   // wait for loaded audio
@@ -608,11 +610,8 @@ function animate() {
     const rotateX = `rotateX(${parseInt(-window.pitch, 10)}deg)`;
     const rotateY = `rotateY(${parseInt(-window.yaw, 10)}deg)`;
 
-    // eslint-disable-next-line
     const transform = `translate(-50%, -50%) ${rotateX} ${rotateY}`;
-
-    // FIXME: jQ should be removed
-    // $('.card').css({ transform });
+    document.getElementById('touchstats:card').style.transform = transform;
   }
   if (window.modeTracker === 'device') {
     document.getElementById('compass').style.display = '';
