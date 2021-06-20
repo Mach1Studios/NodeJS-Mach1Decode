@@ -14,9 +14,7 @@
   -->
   <!-- <script src="js/bose-ar-web-sdk.min.js"></script> -->
 
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@2.7.0/dist/tf-backend-wasm.min.js"></script> -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh@0.0.5/dist/facemesh.min.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
   <!--
   <script src="js/three.js/postprocessing/ShaderPass.js"></script>
   <script src="js/three.js/shaders/CopyShader.js"></script>
@@ -506,6 +504,27 @@
   <div id="info" style="position:relative; margin:auto; margin-top:41vh; text-align:center; font-size:3em;"></div>
 
   <script src="/main.bundle.js"></script>
+
+  <!-- That is dat-gui part and it used only on example page -->
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.controls) {
+        (() => {
+          const gui = new dat.GUI();
+          gui.add(window.controls, 'yawMultiplier', 0.0, 5.0);
+          gui.add(window.controls, 'pitchMultiplier', 0.0, 5.0);
+          gui.add(window.controls, 'rollMultiplier', 0.0, 5.0);
+          gui.add(window.controls, 'FOV', 30.0, 90.0);
+          gui.add(window.controls, 'filterSpeed', 0.1, 1.0);
+
+          gui.add(window.controls, 'oneEuroFilterBeta', 0.05, 0.1).onChange(() => {
+            window.createOneEuroFilters();
+          });
+          gui.close();
+        })();
+      }
+    });
+  </script>
   <script id="__bs_script__">
     //<![CDATA[
     document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.14'><\/script>".replace("HOST", location.hostname));
