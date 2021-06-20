@@ -2,9 +2,6 @@ import 'regenerator-runtime/runtime';
 import 'core-js/stable';
 
 import * as tf from '@tensorflow/tfjs';
-import * as facemesh from '@tensorflow-models/face-landmarks-detection';
-
-import * as THREE from 'three';
 
 import { OneEuroFilter } from '@david18284/one-euro-filter';
 
@@ -47,11 +44,7 @@ const getAudioFiles = (files) => {
 const DecodeModule = new Mach1DecodeModule();
 const Player = new Mach1SoundPlayer(getAudioFiles(audioFiles8));
 const gimbal = new Gimbal();
-const renderer = new Mach1Renderer();
-
-function radiansToDegrees(radians) {
-  return radians * (180 / Math.PI);
-}
+const renderer = new Mach1Renderer(document.getElementById('modelview'));
 
 const getModeElement = (name) => {
   const element = document.getElementsByName('mode');
@@ -115,20 +108,16 @@ function isMobile() {
   return isAndroid || isiOS;
 }
 
-let canvas;
-let ctx;
-let model;
 let video;
-let videoHeight;
-let videoWidth;
+// let videoHeight;
+// let videoWidth;
 
 const mobile = isMobile();
 
 async function setupCamera() {
+  await tf.setBackend('webgl');
   video = document.getElementById('video');
-
   try {
-    await tf.setBackend('webgl');
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
@@ -164,100 +153,6 @@ async function setupCamera() {
   };
 
   return true;
-}
-
-async function renderPrediction() {
-  const predictions = await model.estimateFaces({
-    input: video,
-  });
-  const warningMessage = 'WARNING: UNABLE TO TRACK FACE!';
-  ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
-
-  document.getElementById('stats').innerHTML = '';
-  document.getElementById('warning').innerHTML = (window.modeTracker === 'facetracker' && predictions.length === 0)
-    ? warningMessage
-    : '';
-
-  if (predictions.length > 0) {
-    predictions.forEach((prediction) => {
-      try {
-        if (window.modeTracker === 'facetracker') {
-          document.getElementById('warning').innerHTML = (prediction.faceInViewConfidence < 1) ? warningMessage : '';
-          document.getElementById('stats').innerHTML += `confidence: ${prediction.faceInViewConfidence.toFixed(4)}`;
-        }
-      } catch (err) {
-        document.getElementById('stats').innerHTML = err.message;
-      }
-
-      const keypoints = prediction.scaledMesh;
-
-      for (let i = 0; i < keypoints.length; i += 1) {
-        const x = keypoints[i][0];
-        const y = keypoints[i][1];
-
-        ctx.fillStyle = 'white';
-        ctx.fillRect(x, y, 2, 2);
-
-        if (parseInt(controls.nPoint, 10) === i) {
-          ctx.fillStyle = 'red';
-          ctx.fillRect(x, y, 6, 6);
-        }
-
-        if (i === 10 || i === 152) {
-          ctx.fillStyle = 'green';
-          ctx.fillRect(x, y, 6, 6);
-        }
-        if (i === 234 || i === 454) {
-          ctx.fillStyle = 'yellow';
-          ctx.fillRect(x, y, 6, 6);
-        }
-      }
-
-      const pTop = new THREE.Vector3(prediction.mesh[10][0], prediction.mesh[10][1], prediction.mesh[10][2]);
-      const pBottom = new THREE.Vector3(prediction.mesh[152][0], prediction.mesh[152][1], prediction.mesh[152][2]);
-      const pLeft = new THREE.Vector3(prediction.mesh[234][0], prediction.mesh[234][1], prediction.mesh[234][2]);
-      const pRight = new THREE.Vector3(prediction.mesh[454][0], prediction.mesh[454][1], prediction.mesh[454][2]);
-
-      const pTB = pTop.clone().addScaledVector(pBottom, -1).normalize();
-      const pLR = pLeft.clone().addScaledVector(pRight, -1).normalize();
-
-      let yaw = radiansToDegrees(Math.PI / 2 - pLR.angleTo(new THREE.Vector3(0, 0, 1)));
-      let pitch = radiansToDegrees(Math.PI / 2 - pTB.angleTo(new THREE.Vector3(0, 0, 1)));
-      let roll = radiansToDegrees(Math.PI / 2 - pTB.angleTo(new THREE.Vector3(1, 0, 0)));
-
-      if (yaw > parseFloat(controls.FOV)) {
-        yaw = parseFloat(controls.FOV);
-      }
-      if (yaw < -parseFloat(controls.FOV)) {
-        yaw = -parseFloat(controls.FOV);
-      }
-      if (pitch > parseFloat(controls.FOV)) {
-        pitch = parseFloat(controls.FOV);
-      }
-      if (pitch < -parseFloat(controls.FOV)) {
-        pitch = -parseFloat(controls.FOV);
-      }
-      if (roll > parseFloat(controls.FOV)) {
-        roll = parseFloat(controls.FOV);
-      }
-      if (roll < -parseFloat(controls.FOV)) {
-        roll = -parseFloat(controls.FOV);
-      }
-
-      // FIXME: Not sure what is was, but looks like some id handler but can't to find it in proj
-      // yawOptimized = yaw * parseFloat(controls.yawMultiplier);
-      // pitchOptimized = pitch * parseFloat(controls.pitchMultiplier);
-      // rollOptimized = roll * parseFloat(controls.rollMultiplier);
-
-      if (window.modeTracker === 'facetracker') {
-        window.yaw = yaw * parseFloat(controls.yawMultiplier);
-        window.pitch = pitch * parseFloat(controls.pitchMultiplier);
-        window.roll = roll * parseFloat(controls.rollMultiplier);
-      }
-    });
-  }
-
-  requestAnimationFrame(renderPrediction);
 }
 
 async function trackerMain() {
@@ -301,29 +196,8 @@ async function trackerMain() {
     return null;
   }
 
-  videoWidth = video.videoWidth;
-  videoHeight = video.videoHeight;
-  video.width = videoWidth;
-  video.height = videoHeight;
-
-  canvas = document.getElementById('output');
-  canvas.width = videoWidth;
-  canvas.height = videoHeight;
-
-  // NOTE: This takes the first element by CSS class
-  // and after some changes on the HTML page this code can be broken
-  // FIXME: Need to use getElementsById
-  const canvasContainer = document.querySelector('.canvas-wrapper');
-  canvasContainer.style = `width: ${videoWidth}px; height: ${videoHeight}px`;
-
-  ctx = canvas.getContext('2d');
-  ctx.translate(canvas.width, 0);
-  ctx.scale(-1, 1);
-  ctx.fillStyle = '#32EEDB';
-  ctx.strokeStyle = '#32EEDB';
-
-  model = await facemesh.load(facemesh.SupportedPackages.mediapipeFacemesh);
-  await renderPrediction();
+  const canvas = document.getElementById('output');
+  await renderer.startPredicationRender(video, canvas);
 
   // wait for loaded audio
   info.innerHTML = '';
@@ -345,7 +219,7 @@ DecodeModule.then((m1DecodeModule) => {
   m1Decode.setFilterSpeed(0.9);
 });
 
-function Decode(yaw, pitch, roll) {
+function Decode({ yaw, pitch, roll }) {
   if (m1Decode !== null && yaw !== null && pitch !== null && roll !== null) {
     m1Decode.setFilterSpeed(controls.filterSpeed);
     m1Decode.beginBuffer();
@@ -355,28 +229,6 @@ function Decode(yaw, pitch, roll) {
     Player.gains = decoded;
   }
 }
-
-// ------------------------
-// Visual rendering adopted from https://threejs.org/examples/webgl_materials_normalmap.html
-// let container;
-// let stats;
-// let loader;
-// let camera;
-// let scene;
-// let renderer;
-// let mesh;
-// let pivot;
-// let directionalLight;
-// let pointLight;
-// let ambientLight;
-//
-// let mouseX = 0;
-// let mouseY = 0;
-//
-// const width = 320; // window.innerWidth;
-// const height = 240; // window.innerHeight;
-//
-// let composer;
 
 let fYaw;
 let fPitch;
@@ -391,28 +243,6 @@ function createOneEuroFilters() {
   fPitch = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
   fRoll = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
 }
-//
-// function onWindowResize() {
-//   camera.aspect = width / height;
-//   camera.updateProjectionMatrix();
-//
-//   renderer.setSize(width, height);
-//   composer.setSize(width, height);
-// }
-//
-// function onDocumentMouseMove(event) {
-//   mouseX = (event.clientX) / window.innerWidth;
-//   mouseY = (event.clientY) / window.innerHeight;
-// }
-//
-// function render() {
-//   if (mesh) {
-//     pivot.rotation.y = Math.PI - THREE.Math.degToRad(yaw);
-//     pivot.rotation.x = THREE.Math.degToRad(pitch);
-//     pivot.rotation.z = -THREE.Math.degToRad(roll);
-//   }
-//   composer.render();
-// }
 
 function animate() {
   const map = (value, x1, y1, x2, y2) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
@@ -465,21 +295,19 @@ function animate() {
     }
   }
 
-  renderer.render({ pitch, yaw, roll });
-  renderer.stats.update();
+  renderer.render(window);
 
   // Setting up all values into rotation panel
   document.getElementById('rotationPitch').value = pitch;
   document.getElementById('rotationYaw').value = yaw;
   document.getElementById('rotationRoll').value = roll;
   // Apply orientation to decode Mach1 Spatial to Stereo
-  Decode(yaw, pitch, roll);
+  Decode(window);
   // Apply orientation (yaw) to compass UI
-  document.getElementById('compass').style.transform = `rotate(${yaw}deg)`;
+  document.getElementById('compass').style.transform = `rotate(${window.yaw}deg)`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // init();
   animate();
 
   trackerMain();
@@ -491,11 +319,4 @@ document.addEventListener('DOMContentLoaded', () => {
   window.createOneEuroFilters = createOneEuroFilters;
   window.Player = Player;
   window.selectTracker = selectTracker;
-});
-
-window.onerror = (event) => {
-  document.getElementById('progress:debug').innerHTML = `<p>Error: ${event}</p>`;
-};
-window.addEventListener('unhandledrejection', (event) => {
-  document.getElementById('progress:debug').innerHTML = `<p>Error: ${event.reason}</p>`;
 });
