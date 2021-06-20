@@ -5,22 +5,17 @@ import * as tf from '@tensorflow/tfjs';
 import * as facemesh from '@tensorflow-models/face-landmarks-detection';
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-import Stats from 'stats.js';
 
 import { OneEuroFilter } from '@david18284/one-euro-filter';
 
 import Gimbal from '../src/services/Gimbal';
 import Mach1DecodeModule from '../lib/Mach1Decode';
+import Mach1Renderer from '../src/services/Mach1Renderer';
 import Mach1SoundPlayer from '../src/services/Mach1SoundPlayer';
 
 window.modeTracker = '';
 
 const videoOutput = document.getElementById('output');
-const bosearStats = document.getElementById('bosearstats');
 const touchStats = document.getElementById('touchstats');
 
 /**
@@ -49,58 +44,14 @@ const getAudioFiles = (files) => {
   return files.map((file) => `${path}/${file}.${extention}`);
 };
 
-const Player = new Mach1SoundPlayer(getAudioFiles(audioFiles8));
 const DecodeModule = new Mach1DecodeModule();
+const Player = new Mach1SoundPlayer(getAudioFiles(audioFiles8));
+const gimbal = new Gimbal();
+const renderer = new Mach1Renderer();
 
 function radiansToDegrees(radians) {
   return radians * (180 / Math.PI);
 }
-
-const boseARDeviceElement = document.querySelector('bose-ar-device');
-const boseAROrder = 'YXZ';
-const boseARConfig = {
-  order: boseAROrder,
-  euler: new THREE.Euler(undefined, undefined, undefined, boseAROrder),
-  eulerOffset: new THREE.Euler(undefined, undefined, undefined, boseAROrder),
-  recallibrate: true,
-  callibrate() {
-    this.eulerOffset.copy(this.euler);
-    this.recallibrate = false;
-  },
-  eulerScalar: { x: 1, y: 1, z: 1 },
-};
-
-boseARDeviceElement.setAttribute('double-tap', '');
-boseARDeviceElement.addEventListener('doubleTap', () => {
-  boseARConfig.recallibrate = true;
-});
-
-boseARDeviceElement.addEventListener('rotation', (event) => {
-  boseARConfig.euler.x = Number(event.target.getAttribute('rotationpitch')) + (Math.PI / 2);
-  boseARConfig.euler.y = Number(event.target.getAttribute('rotationyaw'));
-  boseARConfig.euler.z = Number(event.target.getAttribute('rotationroll'));
-
-  if (boseARConfig.recallibrate) boseARConfig.callibrate();
-
-  boseARConfig.euler.x = (boseARConfig.euler.x - boseARConfig.eulerOffset.x) * boseARConfig.eulerScalar.x;
-  boseARConfig.euler.y = (boseARConfig.euler.y - boseARConfig.eulerOffset.y) * boseARConfig.eulerScalar.y;
-  boseARConfig.euler.z = (boseARConfig.euler.z - boseARConfig.eulerOffset.z) * boseARConfig.eulerScalar.z;
-
-  const pitch = radiansToDegrees(boseARConfig.euler.x);
-  const yaw = radiansToDegrees(boseARConfig.euler.y);
-  const roll = radiansToDegrees(boseARConfig.euler.z);
-
-  document.getElementById('rotationPitch').value = pitch;
-  document.getElementById('rotationYaw').value = yaw;
-  document.getElementById('rotationRoll').value = roll;
-
-  if (window.modeTracker === 'bosear') {
-    // TODO: reimplement multipliers and reset all to 1 when `bosear` mode selected
-    window.yaw = yaw;
-    window.pitch = pitch;
-    window.roll = roll;
-  }
-});
 
 const getModeElement = (name) => {
   const element = document.getElementsByName('mode');
@@ -111,8 +62,6 @@ const getModeElement = (name) => {
   }
   return null;
 };
-
-const gimbal = new Gimbal();
 
 function selectTracker() {
   // NOTE: Clear all warning messages
@@ -157,11 +106,6 @@ function selectTracker() {
 
     gimbal.enable();
   }
-}
-
-function enableBoseAR() {
-  const ele = document.getElementById('boseRate');
-  boseARDeviceElement.setAttribute('rotation', ele.options[ele.selectedIndex].value);
 }
 
 // TODO: Apply isMobile returned bools to Device modes
@@ -414,25 +358,25 @@ function Decode(yaw, pitch, roll) {
 
 // ------------------------
 // Visual rendering adopted from https://threejs.org/examples/webgl_materials_normalmap.html
-let container;
-let stats;
-let loader;
-let camera;
-let scene;
-let renderer;
-let mesh;
-let pivot;
-let directionalLight;
-let pointLight;
-let ambientLight;
-
-let mouseX = 0;
-let mouseY = 0;
-
-const width = 320; // window.innerWidth;
-const height = 240; // window.innerHeight;
-
-let composer;
+// let container;
+// let stats;
+// let loader;
+// let camera;
+// let scene;
+// let renderer;
+// let mesh;
+// let pivot;
+// let directionalLight;
+// let pointLight;
+// let ambientLight;
+//
+// let mouseX = 0;
+// let mouseY = 0;
+//
+// const width = 320; // window.innerWidth;
+// const height = 240; // window.innerHeight;
+//
+// let composer;
 
 let fYaw;
 let fPitch;
@@ -446,115 +390,41 @@ function createOneEuroFilters() {
   fYaw = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
   fPitch = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
   fRoll = new OneEuroFilter(60, 1.0, controls.oneEuroFilterBeta, 1.0);
-};
-
-function onWindowResize() {
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(width, height);
-  composer.setSize(width, height);
 }
-
-function onDocumentMouseMove(event) {
-  mouseX = (event.clientX) / window.innerWidth;
-  mouseY = (event.clientY) / window.innerHeight;
-}
-
-function init() {
-  const createScene = (geometry, scale, material) => {
-    mesh = new THREE.Mesh(geometry, material);
-
-    mesh.position.y = 120;
-
-    mesh.scale.x = scale;
-    mesh.scale.y = scale;
-    mesh.scale.z = scale;
-
-    pivot = new THREE.Group();
-    pivot.position.set(0.0, -150.0, 0);
-    pivot.add(mesh);
-
-    scene.add(pivot);
-  };
-
-  const mainWindow = document.getElementById('main');
-  container = document.getElementById('modelview');
-
-  camera = new THREE.PerspectiveCamera(27, width / height, 1, 10000);
-  camera.position.z = 2500;
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x474747);
-
-  // LIGHTS
-  ambientLight = new THREE.AmbientLight(0x474747);
-  scene.add(ambientLight);
-
-  pointLight = new THREE.PointLight(0xffffff, 1.25, 1000);
-  pointLight.position.set(0, 0, 600);
-
-  scene.add(pointLight);
-
-  directionalLight = new THREE.DirectionalLight(0xffffff);
-  directionalLight.position.set(1, -0.5, -1);
-  scene.add(directionalLight);
-
-  const material = new THREE.MeshPhongMaterial({
-    color: 0x191919,
-    specular: 0x50505,
-    shininess: 25,
-    normalScale: new THREE.Vector2(0.8, 0.8),
-  });
-
-  loader = new GLTFLoader();
-  loader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb', (gltf) => {
-    createScene(gltf.scene.children[0].geometry, 100, material);
-  });
-
-  renderer = new THREE.WebGLRenderer({ alpha: true });
-  renderer.setSize(width, height);
-  container.appendChild(renderer.domElement);
-
-  stats = new Stats();
-
-  // COMPOSER
-  renderer.autoClear = false;
-
-  const renderModel = new RenderPass(scene, camera);
-  composer = new EffectComposer(renderer);
-  composer.addPass(renderModel);
-
-  // EVENTS
-  mainWindow.addEventListener('mousemove', onDocumentMouseMove, false);
-  window.addEventListener('resize', onWindowResize, false);
-
-  onWindowResize();
-}
-
-function render() {
-  if (mesh) {
-    pivot.rotation.y = Math.PI - THREE.Math.degToRad(yaw);
-    pivot.rotation.x = THREE.Math.degToRad(pitch);
-    pivot.rotation.z = -THREE.Math.degToRad(roll);
-  }
-  composer.render();
-}
+//
+// function onWindowResize() {
+//   camera.aspect = width / height;
+//   camera.updateProjectionMatrix();
+//
+//   renderer.setSize(width, height);
+//   composer.setSize(width, height);
+// }
+//
+// function onDocumentMouseMove(event) {
+//   mouseX = (event.clientX) / window.innerWidth;
+//   mouseY = (event.clientY) / window.innerHeight;
+// }
+//
+// function render() {
+//   if (mesh) {
+//     pivot.rotation.y = Math.PI - THREE.Math.degToRad(yaw);
+//     pivot.rotation.x = THREE.Math.degToRad(pitch);
+//     pivot.rotation.z = -THREE.Math.degToRad(roll);
+//   }
+//   composer.render();
+// }
 
 function animate() {
   const map = (value, x1, y1, x2, y2) => ((value - x1) * (y2 - x2)) / (y1 - x1) + x2;
   requestAnimationFrame(animate);
   // Update mode dependent UI here
   if (window.modeTracker === 'touch') {
-    window.yaw = map(mouseX, 0, 1, -180, 180);
-    window.pitch = map(mouseY, 0, 1, 45, -45);
+    window.yaw = map(renderer.mouseX, 0, 1, -180, 180);
+    window.pitch = map(renderer.mouseY, 0, 1, 45, -45);
     window.roll = 0;
     document.getElementById('compass').style.display = 'none';
     if (videoOutput.style.display === '') {
       videoOutput.style.display = 'none';
-    }
-    if (bosearStats.style.display === '') {
-      bosearStats.style.display = 'none';
     }
     if (touchStats.style.display === 'none') {
       touchStats.style.display = '';
@@ -574,18 +444,12 @@ function animate() {
     if (videoOutput.style.display === '') {
       videoOutput.style.display = 'none';
     }
-    if (bosearStats.style.display === '') {
-      bosearStats.style.display = 'none';
-    }
     if (touchStats.style.display === '') {
       touchStats.style.display = 'none';
     }
   } else {
     if (videoOutput.style.display === '') {
       videoOutput.style.display = 'none';
-    }
-    if (bosearStats.style.display === '') {
-      bosearStats.style.display = 'none';
     }
     if (window.yaw != null) yaw = fYaw.filter(window.yaw);
     if (window.pitch != null) pitch = fPitch.filter(window.pitch);
@@ -596,28 +460,13 @@ function animate() {
     if (videoOutput.style.display === 'none') {
       videoOutput.style.display = '';
     }
-    if (bosearStats.style.display === '') {
-      bosearStats.style.display = 'none';
-    }
-    if (touchStats.style.display === '') {
-      touchStats.style.display = 'none';
-    }
-  }
-  if (window.modeTracker === 'bosear') {
-    document.getElementById('compass').style.display = '';
-    if (videoOutput.style.display === '') {
-      videoOutput.style.display = 'none';
-    }
-    if (bosearStats.style.display === 'none') {
-      bosearStats.style.display = '';
-    }
     if (touchStats.style.display === '') {
       touchStats.style.display = 'none';
     }
   }
 
-  render();
-  stats.update();
+  renderer.render({ pitch, yaw, roll });
+  renderer.stats.update();
 
   // Setting up all values into rotation panel
   document.getElementById('rotationPitch').value = pitch;
@@ -630,13 +479,12 @@ function animate() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  init();
+  // init();
   animate();
 
   trackerMain();
 
   selectTracker();
-  enableBoseAR();
   createOneEuroFilters();
 
   window.controls = controls;
