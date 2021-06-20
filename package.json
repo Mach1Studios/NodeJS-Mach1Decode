@@ -5,8 +5,8 @@
   "main": "m1DecodeFunctions.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src",
-    "example": "./node_modules/browser-sync/dist/bin.js start --config 'bs-config.js'",
-    "start": "node --experimental-import-meta-resolve -r esm ./configs/browser-sync.js",
+    "example": "node --experimental-import-meta-resolve -r esm ./configs/browser-sync.js",
+    "start": "npm run example",
     "test": "npm run lint"
   },
   "repository": {

@@ -31,3 +31,9 @@ Run the spatial player example:
 ```sh
 npm run example
 ```
+
+At this moment we have some part of the main script examples. Default stable script version: **v02**. If you want to use another version you can put the version to CLI, like this:
+
+```sh
+npm run example v03
+```
