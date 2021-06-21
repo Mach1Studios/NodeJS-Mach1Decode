@@ -2,7 +2,7 @@
   "name": "mach1spatial-decode",
   "version": "1.0.1",
   "description": "Mach1 Spatial NodeJS module for Mach1Decode API",
-  "main": "m1DecodeFunctions.js",
+  "main": "src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src",
     "example": "node --experimental-import-meta-resolve -r esm ./configs/browser-sync.js",

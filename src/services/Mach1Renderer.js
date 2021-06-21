@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import * as THREE from 'three';
 
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
@@ -81,6 +83,7 @@ export default class Mach1Renderer {
   async startPredicationRender(input, canvas) {
     const { videoWidth } = input;
     const { videoHeight } = input;
+
 
     input.width = videoWidth;
     input.height = videoHeight;
