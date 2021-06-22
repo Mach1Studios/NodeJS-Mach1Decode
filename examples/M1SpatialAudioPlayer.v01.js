@@ -1,3 +1,8 @@
+/**
+ * That is one of the old version of the spatial audio player, which should work properly if it will be imported as a script to the HTML page
+ * requirement: Gimbal, THREE, one-euro-filter, OSC, TensorFlow, Mach1DecodeModule, and Mach1SoundPlayer. All of these packages should be imported before it
+ */
+
 // ------------------------
 window.modeTracker = '';
 const videoOutput = document.getElementById('output');

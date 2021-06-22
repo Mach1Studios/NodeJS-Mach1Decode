@@ -1,11 +1,11 @@
-/*
+/* eslint-disable new-cap */
+
+/**
  * Mach1 Spatial Web SoundPlayer Example
  * Description: Example of an audio player for Mach1Decode API and spatial audio playback
 */
 
-/* eslint-disable new-cap, no-alert */
-
-class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
+export default class Mach1SoundPlayer {
   #soundFilesCount = 0
   #soundFilesCountReady = 0
 
@@ -177,14 +177,14 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
     return this.#gains;
   }
 
- /**
+  /**
    * Setting Master Gain/Volume
    * @param  {Array} volume
    */
   set volume(vol) {
     this.#volume = parseFloat(vol);
   }
-  
+
   /**
    * Return Master Gain/Volume
    * @return {String} Volume from 0 to 1 as a float
@@ -203,7 +203,7 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
           this.#smp[i] = this.audioContext.createBufferSource();
           if (this.#isFromBuffer) {
             this.#smp[i].buffer = this.audioContext.createBuffer(
-              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate
+              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate,
             );
             this.#smp[i].buffer.copyToChannel(this.#buffer.getChannelData(j), 0, 0);
           } else {
@@ -228,7 +228,7 @@ class Mach1SoundPlayer { // eslint-disable-line no-unused-vars
           this.#smp[i + 1] = this.audioContext.createBufferSource();
           if (this.#isFromBuffer) {
             this.#smp[i + 1].buffer = this.audioContext.createBuffer(
-              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate
+              1, this.#buffer.length / this.#buffer.numberOfChannels, this.audioContext.sampleRate,
             );
             this.#smp[i + 1].buffer.copyToChannel(this.#buffer.getChannelData(j), 0, 0);
           } else {
