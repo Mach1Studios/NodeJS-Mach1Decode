@@ -19,6 +19,7 @@ export class Mach1DecoderProxy {
   }
 
   decode({ yaw, pitch, roll }) {
+    if (!this.#module) return null;
     if (this.#module !== null && yaw !== null && pitch !== null && roll !== null) {
       this.#module.beginBuffer();
       const decoded = this.#module.decode(yaw, pitch, roll);
@@ -28,6 +29,7 @@ export class Mach1DecoderProxy {
         this.#player.gains = decoded;
       }
 
+      // console.log('decoded:', decoded);
       return decoded;
     }
 
