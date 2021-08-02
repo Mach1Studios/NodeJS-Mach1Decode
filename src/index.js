@@ -4,18 +4,28 @@ export class Mach1DecoderProxy {
   #player;
   #module;
 
-  constructor(source) {
+  #debug = {
+    enable: false,
+    values: {},
+  };
+
+  constructor(source, options) {
     if (source) {
       this.#player = source;
     }
+    if (typeof options === 'object' && hasOwnProperty.call(options, 'debug')) {
+      this.#debug.enable = options.debug;
+    }
 
-    new Mach1DecodeModule().then((m1DecodeModule) => {
-      this.#module = new m1DecodeModule.Mach1Decode();
+    new Mach1DecodeModule()
+      .then((m1DecodeModule) => {
+        console.debug('compleate');
+        this.#module = new m1DecodeModule.Mach1Decode();
 
-      this.#module.setPlatformType(this.#module.Mach1PlatformType.Mach1PlatformDefault);
-      this.#module.setDecodeAlgoType(this.#module.Mach1DecodeAlgoType.Mach1DecodeAlgoSpatial);
-      this.#module.setFilterSpeed(0.9);
-    });
+        this.#module.setPlatformType(this.#module.Mach1PlatformType.Mach1PlatformDefault);
+        this.#module.setDecodeAlgoType(this.#module.Mach1DecodeAlgoType.Mach1DecodeAlgoSpatial);
+        this.#module.setFilterSpeed(0.9);
+      });
   }
 
   decode({ yaw, pitch, roll }) {
@@ -29,7 +39,13 @@ export class Mach1DecoderProxy {
         this.#player.gains = decoded;
       }
 
-      // console.log('decoded:', decoded);
+      if (this.#debug.enable && (this.#debug.values.yaw !== yaw || this.#debug.values.pitch !== pitch || this.#debug.values.roll !== roll)) {
+        this.#debug.values = { yaw, pitch, roll };
+
+        console.debug(`Inpute values: yaw=${yaw}, pitch=${pitch}, roll=${roll}`);
+        console.debug(`Decoded values: ${decoded}`);
+      }
+
       return decoded;
     }
 
