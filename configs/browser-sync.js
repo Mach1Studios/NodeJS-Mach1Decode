@@ -8,7 +8,7 @@ import { configs, bundler } from './middleware';
 
 const bs = browserSync.create();
 
-const version = _.get(process, 'argv.2', 'v02');
+const version = _.get(process, 'argv.2', 'v03');
 const entry = [new URL(`../examples/M1SpatialAudioPlayer.${version}.js`, import.meta.url).pathname];
 
 bs.init({ ...configs, middleware: bundler(bs, { entry }) });

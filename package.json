@@ -39,7 +39,9 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
     "esm": "^3.2.25",
-    "portscanner": "^2.2.0"
+    "portscanner": "^2.2.0",
+    "webpack": "^5.50.0",
+    "webpack-dev-middleware": "^5.0.0"
   },
   "dependencies": {
     "@david18284/one-euro-filter": "^1.0.2",
