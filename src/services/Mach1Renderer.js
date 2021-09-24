@@ -119,7 +119,6 @@ export default class Mach1Renderer {
   }
 
   async renderPrediction() {
-    console.log('render');
     const { controls } = window;
     const {
       input,

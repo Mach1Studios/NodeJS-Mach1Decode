@@ -112,36 +112,25 @@ export default class Mach1SoundPlayer {
   constructor(input) {
     if (Object.getPrototypeOf(input) === AudioBuffer.prototype) {
       this.#isFromBuffer = true;
+      this.#buffer = input;
 
-      const buf = input;
-
-      this.#soundFilesCount = buf.numberOfChannels * 2;
-
-      this.#buffer = buf;
-
-      this.#gainNode = this.#initArray(this.#soundFilesCount);
-      this.#gains = this.#initArray(this.#soundFilesCount);
-      this.#pannerNode = this.#initArray(this.#soundFilesCount);
-      this.#smp = this.#initArray(this.#soundFilesCount);
-
+      this.#soundFilesCount = this.#buffer.numberOfChannels * 2;
       this.#isSoundReady = true;
     } else if (Array.isArray(input)) {
-      this.#isFromBuffer = false;
       const audioFiles = input;
-
-      this.#soundFilesCount = audioFiles.length * 2;
-
+      this.#isFromBuffer = false;
       this.#buffer = this.#initArray(audioFiles.length);
 
-      this.#gainNode = this.#initArray(this.#soundFilesCount);
-      this.#gains = this.#initArray(this.#soundFilesCount);
-      this.#pannerNode = this.#initArray(this.#soundFilesCount);
-      this.#smp = this.#initArray(this.#soundFilesCount);
-
+      this.#soundFilesCount = this.#buffer.length * 2;
       audioFiles.forEach(this.#preload);
     } else {
-      console.error("Mach1SoundPlayer can't parse input!");
+      throw new Error("Mach1SoundPlayer can't parse input!");
     }
+
+    this.#gainNode = this.#initArray(this.#soundFilesCount);
+    this.#gains = this.#initArray(this.#soundFilesCount);
+    this.#pannerNode = this.#initArray(this.#soundFilesCount);
+    this.#smp = this.#initArray(this.#soundFilesCount);
   }
 
   /**
