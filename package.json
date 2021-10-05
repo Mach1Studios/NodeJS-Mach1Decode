@@ -1,6 +1,6 @@
 {
   "name": "mach1spatial-decode",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Mach1 Spatial NodeJS module for Mach1Decode API",
   "main": "src/index.js",
   "scripts": {
