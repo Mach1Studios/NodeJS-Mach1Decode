@@ -1,4 +1,6 @@
+/* eslint-disable */
 import Mach1DecodeModule from '../lib/Mach1Decode';
+import Mach1DecodeModuleWasm from '../lib/Mach1Decode.wasm';
 
 export class Mach1DecoderProxy {
   #player;
@@ -13,13 +15,24 @@ export class Mach1DecoderProxy {
     if (source) {
       this.#player = source;
     }
-    if (typeof options === 'object' && hasOwnProperty.call(options, 'debug')) {
-      this.#debug.enable = options.debug;
+    if (typeof options === 'object') {
+      if (hasOwnProperty.call(options, 'debug')) {
+        this.#debug.enable = options.debug;
+      }
+      if (hasOwnProperty.call(options, 'locateFile')) {
+        const { locateFile } = options;
+        switch (typeof locateFile) {
+          case 'function':
+            Mach1DecodeModule.locateFile = locateFile;
+            break;
+          default:
+            throw new Error('"locateFile" argument must be a function');
+        }
+      }
     }
 
     new Mach1DecodeModule()
       .then((m1DecodeModule) => {
-        console.debug('compleate');
         this.#module = new m1DecodeModule.Mach1Decode();
 
         this.#module.setPlatformType(this.#module.Mach1PlatformType.Mach1PlatformDefault);
