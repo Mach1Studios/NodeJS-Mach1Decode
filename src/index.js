@@ -36,7 +36,7 @@ export class Mach1DecoderProxy {
         this.#module = new m1DecodeModule.Mach1Decode();
 
         this.#module.setPlatformType(this.#module.Mach1PlatformType.Mach1PlatformDefault);
-        this.#module.setDecodeAlgoType(this.#module.Mach1DecodeAlgoType.Mach1DecodeAlgoSpatial);
+        this.#module.setDecodeAlgoType(this.#module.Mach1DecodeAlgoType.Mach1DecodeAlgoSpatial_8);
         this.#module.setFilterSpeed(0.9);
       });
   }
